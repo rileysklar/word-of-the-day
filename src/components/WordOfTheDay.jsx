@@ -39,7 +39,7 @@ function WordOfTheDay() {
 
   return (
     <div className="flex flex-col mt-2 max-w-3xl width-full align-items gap-4 container p-4 mx-auto">
-<div className="flex flex-row justify-center items-center"><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="125.211" height="17.49" viewBox="0 0 125.211 17.49">
+<div className="flex flex-row justify-between items-center"><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="125.211" height="17.49" viewBox="0 0 125.211 17.49">
   <defs>
     <clipPath id="clip-path">
       <rect id="Rectangle_5" data-name="Rectangle 5" width="125.211" height="17.49" fill="#fff"/>
