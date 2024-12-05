@@ -60,7 +60,8 @@ function WordOfTheDay() {
 
   return (
     <div className="flex flex-col mt-2 max-w-3xl width-full align-items gap-4 container p-4 mx-auto">
-<div className="flex flex-row justify-between items-center"><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="125.211" height="17.49" viewBox="0 0 125.211 17.49">
+<div className="flex flex-row justify-between items-center bg-gray-100 p-4 rounded shadow-md">
+  <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="125.211" height="17.49" viewBox="0 0 125.211 17.49">
   <defs>
     <clipPath id="clip-path">
       <rect id="Rectangle_5" data-name="Rectangle 5" width="125.211" height="17.49" fill="#fff"/>
@@ -79,7 +80,7 @@ function WordOfTheDay() {
       </g>
     </g>
   </g>
-</svg><h1 className="text-lg font-bold flex flex-col gap-2 text-slate-800 items-center text-right text-balance"> Marketing Word of the Day</h1></div>
+</svg><h1 className="text-[13px] leading-none mt-0 font-bold flex flex-col gap-2 text-slate-800 items-center text-right text-balance"> Marketing Word of the Day</h1></div>
 
 
       {wordData ? (
@@ -147,26 +148,52 @@ function WordOfTheDay() {
     pendingRequests > 0 ? 'cursor-not-allowed' : ''
   }`}
 >
-  <div className="flex items-center">
-    {pendingRequests > 0 ? (
-      <svg
-        className="animate-spin h-5 w-5 mr-3 border-b-2 border-white border-solid rounded-full"
-        viewBox="0 0 24 24"
-        fill="none"
-        xmlns="http://www.w3.org/2000/svg"
-      >
-        <circle
-          cx="12"
-          cy="12"
-          r="10"
-          stroke="currentColor"
-          strokeWidth="4"
-          strokeLinecap="round"
-        ></circle>
-      </svg>
-    ) : null}
-    <span>{pendingRequests > 0 ? 'Loading...' : 'Fetch Random Word'}</span>
-  </div>
+<div className="flex items-center space-x-2">
+  {pendingRequests > 0 && (
+    <svg
+      width="24"
+      height="24"
+      viewBox="0 0 24 24"
+      xmlns="http://www.w3.org/2000/svg"
+      aria-label="Loading spinner"
+      role="img"
+    >
+      <style>
+        {`.spinner_7uc5 {
+          animation: spinner_3l8F .9s linear infinite;
+          animation-delay: -.9s;
+          fill: white; /* Sets the bars to white */
+        }
+        .spinner_RibN {
+          animation-delay: -.7s;
+        }
+        .spinner_ZAxd {
+          animation-delay: -.5s;
+        }
+        @keyframes spinner_3l8F {
+          0%, 66.66% {
+            animation-timing-function: cubic-bezier(0.14, .73, .34, 1);
+            y: 6px;
+            height: 12px;
+          }
+          33.33% {
+            animation-timing-function: cubic-bezier(0.65, .26, .82, .45);
+            y: 1px;
+            height: 22px;
+          }
+        }`}
+      </style>
+      <rect className="spinner_7uc5 spinner_ZAxd" x="1" y="6" width="2.8" height="12" />
+      <rect className="spinner_7uc5 spinner_RibN" x="5.8" y="6" width="2.8" height="12" />
+      <rect className="spinner_7uc5" x="10.6" y="6" width="2.8" height="12" />
+      <rect className="spinner_7uc5 spinner_RibN" x="15.4" y="6" width="2.8" height="12" />
+      <rect className="spinner_7uc5 spinner_ZAxd" x="20.2" y="6" width="2.8" height="12" />
+    </svg>
+  )}
+  <span>{pendingRequests > 0 ? "Fetching..." : "Fetch Random Word"}</span>
+</div>
+
+
 </button>
 
 
