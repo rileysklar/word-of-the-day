@@ -1,29 +1,50 @@
 import { useState, useEffect } from 'react';
-import { generate } from 'random-words';
 import "../styles/global.css";
 
 function WordOfTheDay() {
   const [wordData, setWordData] = useState(null);
   const [showMoreInfo, setShowMoreInfo] = useState(false);
   const [searchWord, setSearchWord] = useState("");
+  const [loading, setLoading] = useState(false); // State to track loading
+  const [error, setError] = useState(""); // Add this state to hold the error message
 
-  const fetchWord = async (word = generate({ minLength: 5, maxLength: 30 })) => {
+
+  const fetchWord = async (word = "") => {
+    setLoading(true); // Set loading to true before starting the API call
+    setError(""); // Reset error state before each fetch
+  
+    // If no word is provided, fetch a random word from the random-word API
+    if (!word) {
+      const wordResponse = await fetch('https://random-word-api.herokuapp.com/word');
+      const wordArray = await wordResponse.json();
+      word = wordArray[0]; // Get the first word from the API response
+    }
+  
     const url = `https://api.dictionaryapi.dev/api/v2/entries/en/${word}`;
-    
+  
     try {
       const response = await fetch(url);
-      const data = await response.json();
-      if (response.ok) {
-        setWordData(data[0]);
-        setShowMoreInfo(false); // Reset dropdown state for the new word
-      } else {
-        console.error('Error fetching word data');
+      if (!response.ok) {
+        if (response.status === 404) {
+          setError("🥵 The API is overheating trying to fetch so many random words! Please refresh the app, or input your own word.");
+        } else {
+          setError("An error occurred while fetching the word data.");
+        }
         setWordData(null); // Handle API errors gracefully
+        return;
       }
+      const data = await response.json();
+      setWordData(data[0]);
+      setShowMoreInfo(false); // Reset dropdown state for the new word
     } catch (error) {
       console.error('Error:', error);
+      setError("An error occurred while fetching the word data.");
+    } finally {
+      setLoading(false); // Set loading to false once the API call is finished
     }
   };
+  
+  
 
   // Fetch a random word on component mount
   useEffect(() => {
@@ -93,14 +114,17 @@ function WordOfTheDay() {
                   <p className="text-gray-600">
                     <strong>Synonyms:</strong> {wordData.meanings[0].synonyms.join(', ')}
                   </p>
+                  
                 )}
+               
+
               </div>
             )}
           </div>
         </div>
       ) : (
-        <p className="text-red-200 mt-4">Fetching word of the day...</p>
-      )}
+        <p className="text-slate-400 bg-gray-100 p-4 rounded shadow-md">Fetching word of the day...</p>
+      )} {error && <p className="text-red-500 bg-gray-100 p-4 rounded shadow-md">{error}</p>}
           <form onSubmit={handleSearch} className="mb-4">
         <input
           type="text"
@@ -117,12 +141,20 @@ function WordOfTheDay() {
             Search
           </button>
           <button
-            type="button"
-            className="bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600 transition"
-            onClick={() => fetchWord()}
-          >
-            Get Random Word
-          </button>
+  onClick={() => fetchWord()}
+  disabled={loading} // Disable button while loading
+  className={`p-3 bg-blue-500 text-white rounded ${loading ? 'cursor-not-allowed' : ''}`}
+>
+  <div className="flex items-center">
+    {loading ? (
+      <svg className="animate-spin h-5 w-5 mr-3 border-b-2 border-white border-solid rounded-full" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" strokeLinecap="round"></circle>
+      </svg>
+    ) : null}
+    <span>{loading ? 'Loading...' : 'Fetch Random Word'}</span>
+  </div>
+</button>
+
         </div>
       </form>
     </div>
