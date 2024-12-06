@@ -2,12 +2,14 @@
 import astroLogo from '../assets/astro.svg';
 import background from '../assets/background.svg';
 import WordOfTheDay from '../components/WordOfTheDay';
+import NavBar from './NavBar';
 ---
 
 <div id="container">
 	<img id="background" src={background.src} alt="" fetchpriority="high" />
-	<main>
-				<WordOfTheDay client:load/>
+	<main class="flex flex-start flex-col mt-2 max-w-3xl width-full align-items gap-4 container p-4 mx-auto">
+		<NavBar client:load />		
+		<WordOfTheDay client:load/>
 	</main>
 
 	
