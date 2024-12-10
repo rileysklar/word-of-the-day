@@ -21,7 +21,7 @@ function NavBar() {
           </g>
         </g>
       </svg><h1 className="text-[16px] tracking-[6px] leading-none mt-0 font-bold flex flex-col gap-2 text-slate-800 items-center text-right text-balance"> Marketing </h1></div>
-      <h1 className="text-[18px] leading-none mt-0 font-bold flex flex-col gap-2 text-slate-800 items-center text-right text-balance">Word of the Day</h1></div>
+      <h1 className="text-[18px] leading-none mt-0 font-bold flex flex-col gap-2 text-slate-400 items-center text-right text-balance">Word of the Day</h1></div>
     )}
 
     export default NavBar;
