@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import "../styles/global.css";
+import SkeletonLoader from './SkeletonLoader';
 
 function WordOfTheDay() {
   const [wordData, setWordData] = useState(null);
@@ -83,8 +84,9 @@ const fetchWord = async (word = "") => {
 
   return (
     <div className="flex flex-col max-w-3xl width-full align-items gap-4 container mx-auto">
-
-      {wordData ? (
+ {pendingRequests > 0 ? (
+      <SkeletonLoader />
+    ) : wordData ? (
         <div className="bg-gray-100 p-4 rounded shadow-md">
           <h2 className="text-3xl text-slate-800 font-semibold">{wordData.word}</h2>
           <p className="text-gray-700 mt-2">{wordData.meanings[0]?.definitions[0]?.definition || "Definition not available"}</p>
