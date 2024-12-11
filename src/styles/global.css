@@ -22,6 +22,44 @@
     font-display: swap;
   }
 
+  /* Basic styling for inline code */
+code {
+    font-family: 'Courier New', monospace;
+    font-size: 1em;
+    background-color: #f4f4f4;
+    color: #d14;
+    padding: 2px 4px;
+    border-radius: 3px;
+    box-shadow: inset 0 0 2px rgba(0, 0, 0, 0.1);
+}
+
+/* Styling for block code (inside <pre>) */
+pre code {
+    display: block;
+    padding: 10px;
+    margin: 10px 0;
+    background-color: #282c34;  /* Dark background */
+    color: #f8f8f2;  /* Light text color */
+    border-radius: 5px;
+    font-size: 1.1em;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+}
+
+/* Optional: Syntax Highlighting */
+pre code .keyword {
+    color: #c678dd; /* Purple for keywords */
+}
+
+pre code .string {
+    color: #98c379; /* Green for strings */
+}
+
+pre code .comment {
+    color: #7f8c8d; /* Grey for comments */
+}
+
+
 
 #background {
     position: fixed;

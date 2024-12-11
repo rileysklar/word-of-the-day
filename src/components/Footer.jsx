@@ -26,7 +26,7 @@ const Footer = () => {
       >
         🪩
       </a>
-
+{/* 
       {showModal && (
         <motion.div
           className="morphism fixed inset-0 flex flex-col items-center justify-center bg-opacity-50 z-50"
@@ -63,7 +63,7 @@ const Footer = () => {
             </p>
           </motion.div>
         </motion.div>
-      )}
+      )} */}
     </footer>
   );
 };
