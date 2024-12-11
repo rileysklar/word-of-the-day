@@ -1,3 +1,28 @@
+@font-face {
+    font-family: 'Miun';
+    src: url('../../public/fonts/Miun.otf') format('woff');
+    font-weight: normal;
+    font-style: normal;
+    font-display: swap;
+  }
+
+  @font-face {
+    font-family: 'Mark';
+    src: url('../../public/fonts/MarkSimonsonProximaNovaBold.ttf') format('woff');
+    font-weight: bold;
+    font-style: normal;
+    font-display: swap;
+  }
+
+  @font-face {
+    font-family: 'Mark';
+    src: url('../../public/fonts/MarkSimonsonProximaNovaRegular.ttf') format('woff');
+    font-weight: normal;
+    font-style: normal;
+    font-display: swap;
+  }
+
+
 #background {
     position: fixed;
     top: 0;
@@ -8,7 +33,14 @@
     filter: blur(35px);
 }
 
-
+.morphism {
+    background: rgba( 255, 255, 255, 0.25 );
+box-shadow: 0 8px 32px 0 rgba( 31, 38, 135, 0.37 );
+backdrop-filter: blur( 4px );
+-webkit-backdrop-filter: blur( 4px );
+border-radius: 10px;
+border: 1px solid rgba( 255, 255, 255, 0.18 );
+}
 
 #container {
     font-family: Inter, Roboto, 'Helvetica Neue', 'Arial Nova', 'Nimbus Sans', Arial, sans-serif;
@@ -18,6 +50,7 @@
 main {
     height: 100svh;
     display: flex;
+    font-family: "Mark", sans-serif;
 }
 
 #hero {
@@ -42,10 +75,6 @@ a {
     color: #111827;
     text-decoration: none;
     transition: color 0.2s;
-}
-
-a:hover {
-    color: rgb(78, 80, 86);
 }
 
 a svg {

@@ -1,5 +1,5 @@
 function NavBar() {
-    return (<div className="flex flex-row justify-between items-center bg-gray-100 p-4 rounded shadow-md">
+    return (<div className="flex flex-row justify-between font-garamond items-center bg-gray-100 p-4 rounded shadow-md">
         <div className="flex flex-col items-start">
         <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="125.211" height="17.49" viewBox="0 0 125.211 17.49">
         <defs>
@@ -21,7 +21,7 @@ function NavBar() {
           </g>
         </g>
       </svg><h1 className="text-[16px] tracking-[6px] leading-none mt-0 font-bold flex flex-col gap-2 text-slate-800 items-center text-right text-balance"> Marketing </h1></div>
-      <h1 className="text-[18px] leading-none mt-0 font-bold flex flex-col gap-2 text-slate-400 items-center text-right text-balance">Word of the Day</h1></div>
+      <h1 className="text-[18px] leading-none mt-0 font-bold flex flex-col text-slate-800 items-center text-right text-balance"><span>Word of</span> <span>the Day</span></h1></div>
     )}
 
     export default NavBar;

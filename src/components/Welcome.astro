@@ -1,8 +1,8 @@
 ---
-import astroLogo from '../assets/astro.svg';
 import background from '../assets/background.svg';
 import WordOfTheDay from '../components/WordOfTheDay';
 import NavBar from './NavBar';
+import Footer from './Footer';
 ---
 
 <div id="container">
@@ -12,9 +12,7 @@ import NavBar from './NavBar';
 			<NavBar client:load />		
 			<WordOfTheDay client:load/>
 		</div>
-		<div class="flex flex-row gap-1"><p class="text-xs text-slate-400">Built by Riley <div class="animate-bounce opacity-40">🪩</div></p></div>
+		<Footer client:load/>
 	</main>
-
-	
 </div>
 
