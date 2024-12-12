@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { motion } from 'framer-motion';
+import React, { useState } from "react";
+import { motion } from "framer-motion";
 import "../styles/global.css";
 
 const Footer = () => {
@@ -14,7 +14,7 @@ const Footer = () => {
   };
 
   return (
-    <footer className="flex flex-row gap-1 items-center justify-start relative">
+    <footer className="flex flex-row gap-1 items-center mt-4 justify-start relative">
       <a
         href="#"
         onClick={(e) => {
@@ -22,14 +22,14 @@ const Footer = () => {
           handleDiscoBallClick();
         }}
         className="animate-bounce text-3xl p-0 opacity-40 relative z-10"
-        style={{ cursor: 'pointer' }}
+        style={{ cursor: "pointer" }}
       >
         🪩
       </a>
       <motion.p
         className="absolute font-mono top-0 left-10 text-xs text-slate-600"
         initial={{ x: -10, opacity: 0 }}
-        animate={isVisible ? { x: 6, opacity: .7 } : { x: -5, opacity: 0 }}
+        animate={isVisible ? { x: 6, opacity: 0.7 } : { x: -5, opacity: 0 }}
         transition={{ duration: 0.5 }}
       >
         built by riley
