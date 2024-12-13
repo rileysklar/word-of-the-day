@@ -166,21 +166,21 @@ function WordOfTheDay() {
           value={searchWord}
           onChange={(e) => setSearchWord(e.target.value)}
         />
-        <div className="flex space-x-4 ">
+        <div class="flex flex-col sm:flex-row sm:space-x-4 space-y-4 sm:space-y-0">
           <button
             type="submit"
-            className="bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600 transition shadow-md"
+            className="w-full bg-blue-700 text-white p-3 rounded hover:bg-blue-600 transition shadow-md"
           >
             Search
           </button>
           <button
             onClick={() => fetchWord()}
             disabled={pendingRequests > 0} // Disable button while any requests are pending
-            className={`p-3 button text-white rounded transition shadow-md ${
+            className={`w-full p-3 button text-white rounded transition shadow-md ${
               pendingRequests > 0 ? "cursor-not-allowed" : ""
             }`}
           >
-            <div className="flex items-center space-x-2">
+            <div className="flex items-center justify-center space-x-2">
               {pendingRequests > 0 && (
                 <svg
                   width="24"
