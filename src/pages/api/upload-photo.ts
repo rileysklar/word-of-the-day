@@ -2,10 +2,10 @@ import type { APIRoute } from "astro";
 import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3";
 
 const s3Client = new S3Client({
-  region: import.meta.env.AWS_REGION,
+  region: import.meta.env.REGION,
   credentials: {
-    accessKeyId: import.meta.env.AWS_ACCESS_KEY_ID,
-    secretAccessKey: import.meta.env.AWS_SECRET_ACCESS_KEY,
+    accessKeyId: import.meta.env.ACCESS,
+    secretAccessKey: import.meta.env.SECRET,
   },
 });
 
@@ -20,10 +20,13 @@ export const POST: APIRoute = async ({ request }) => {
 
     if (!file || !dt) {
       console.error("Missing file or date");
-      return new Response(JSON.stringify({ error: "File and date are required" }), {
-        status: 400,
-        headers: { "Content-Type": "application/json" },
-      });
+      return new Response(
+        JSON.stringify({ error: "File and date are required" }),
+        {
+          status: 400,
+          headers: { "Content-Type": "application/json" },
+        }
+      );
     }
 
     // Generate a unique key for the S3 object
@@ -37,7 +40,7 @@ export const POST: APIRoute = async ({ request }) => {
 
     console.log("Uploading to S3...");
     console.log("Bucket:", import.meta.env.AWS_S3_BUCKET);
-    console.log("Region:", import.meta.env.AWS_REGION);
+    console.log("Region:", import.meta.env.REGION);
 
     // Upload to S3
     const command = new PutObjectCommand({
@@ -45,14 +48,16 @@ export const POST: APIRoute = async ({ request }) => {
       Key: key,
       Body: buffer,
       ContentType: file.type,
-      ACL: 'public-read'
+      ACL: "public-read",
     });
 
     await s3Client.send(command);
     console.log("Successfully uploaded to S3");
 
     // Return the full S3 URL
-    const photoUrl = `https://${import.meta.env.AWS_S3_BUCKET}.s3.${import.meta.env.AWS_REGION}.amazonaws.com/${key}`;
+    const photoUrl = `https://${import.meta.env.AWS_S3_BUCKET}.s3.${
+      import.meta.env.REGION
+    }.amazonaws.com/${key}`;
     console.log("Generated photo URL:", photoUrl);
 
     return new Response(JSON.stringify({ photoUrl }), {
