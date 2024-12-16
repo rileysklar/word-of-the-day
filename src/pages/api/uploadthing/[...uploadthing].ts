@@ -1,6 +1,7 @@
 import type { APIRoute } from "astro";
 import { createRouteHandler } from "uploadthing/server";
 import { uploadRouter } from "./core";
+import { uploadthingConfig } from "../../../utils/uploadthing-config";
 
 export const config = {
   runtime: 'edge'
@@ -8,12 +9,7 @@ export const config = {
 
 const handler = createRouteHandler({
   router: uploadRouter,
-  config: {
-    uploadthingId: process.env.UPLOADTHING_APP_ID,
-    uploadthingSecret: process.env.UPLOADTHING_SECRET,
-    uploadthingToken: process.env.UPLOADTHING_TOKEN,
-    isDev: process.env.NODE_ENV === 'development',
-  },
+  config: uploadthingConfig,
 });
 
 export const GET: APIRoute = async ({ request }) => {
@@ -24,9 +20,9 @@ export const POST: APIRoute = async ({ request }) => {
   try {
     console.log('Processing upload request');
     console.log('Environment variables present:', {
-      hasAppId: !!process.env.UPLOADTHING_APP_ID,
-      hasSecret: !!process.env.UPLOADTHING_SECRET,
-      hasToken: !!process.env.UPLOADTHING_TOKEN
+      hasAppId: !!uploadthingConfig.uploadthingId,
+      hasSecret: !!uploadthingConfig.uploadthingSecret,
+      hasToken: !!uploadthingConfig.uploadthingToken
     });
     const response = await handler.POST(request);
     console.log('Upload response:', response);
