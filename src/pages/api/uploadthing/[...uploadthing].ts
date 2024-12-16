@@ -1,12 +1,11 @@
-import { createNextRouteHandler } from "uploadthing/server";
+import { createRouteHandler } from "uploadthing/server";
 import { uploadRouter } from "./core";
 
 export const config = {
-  runtime: 'edge',
-  regions: ['iad1'], // this is for US East (N. Virginia)
+  runtime: 'edge'
 };
 
-const handler = createNextRouteHandler({
+const handler = createRouteHandler({
   router: uploadRouter,
   config: {
     uploadthingId: process.env.UPLOADTHING_APP_ID,
