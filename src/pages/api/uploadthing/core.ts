@@ -1,4 +1,4 @@
-import { createUploadthing, type FileRouter } from "uploadthing/server";
+import { createUploadthing, type FileRouter } from "uploadthing/next";
 
 const f = createUploadthing();
 
@@ -9,11 +9,23 @@ export const uploadRouter = {
     image: { maxFileSize: "2MB", maxFileCount: 1 },
   })
     .middleware(async ({ req }) => {
-      return { userId: "user" };
+      try {
+        console.log("UploadThing middleware executing");
+        return { userId: "user" };
+      } catch (error) {
+        console.error("UploadThing middleware error:", error);
+        throw error;
+      }
     })
     .onUploadComplete(async ({ metadata, file }) => {
-      console.log("Upload complete:", file);
-      return { url: file.url };
+      try {
+        console.log("Upload complete for file:", file);
+        console.log("With metadata:", metadata);
+        return { url: file.url };
+      } catch (error) {
+        console.error("Upload complete error:", error);
+        throw error;
+      }
     }),
 } satisfies FileRouter;
 
