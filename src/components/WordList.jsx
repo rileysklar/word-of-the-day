@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import "../styles/global.css";
+import SkeletonLoader from "./SkeletonLoader";
 
 function WordList({ wordData }) {
   const [savedWords, setSavedWords] = useState([]);
@@ -192,7 +193,7 @@ function WordList({ wordData }) {
         </div>
       )}
       <h2 className="text-2xl font-semibold mb-4">Virtual Whiteboard</h2>
-      <div className="">
+      <div className="flex flex-col gap-4">
         {savedWords.map((word) => (
           <div
             key={`${word.wd}-${word.dt}`}
@@ -304,7 +305,8 @@ function WordList({ wordData }) {
           </div>
         ))}
         {savedWords.length === 0 && !loading && (
-          <p className="text-gray-500 text-center py-4">No words saved yet</p>
+          // <p className="text-gray-500 text-center py-4">No words saved yet</p>
+          <SkeletonLoader client:load />
         )}
       </div>
     </div>
