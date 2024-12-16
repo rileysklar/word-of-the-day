@@ -2,15 +2,18 @@ import { createUploadthing, type FileRouter } from "uploadthing/server";
 
 const f = createUploadthing();
 
+const auth = (req: Request) => ({ id: "user" });
+
 export const uploadRouter = {
-  wordImage: f({ image: { maxFileSize: "4MB" } })
-    .middleware(async () => {
+  imageUploader: f({
+    image: { maxFileSize: "2MB", maxFileCount: 1 },
+  })
+    .middleware(async ({ req }) => {
       return { userId: "user" };
     })
     .onUploadComplete(async ({ metadata, file }) => {
-      console.log("Upload complete for userId:", metadata.userId);
-      console.log("file url", file.url);
-      return { uploadedBy: metadata.userId, url: file.url };
+      console.log("Upload complete:", file);
+      return { url: file.url };
     }),
 } satisfies FileRouter;
 

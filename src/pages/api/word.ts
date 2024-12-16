@@ -1,6 +1,8 @@
 import type { APIRoute } from "astro";
 import { wordOperations, type WordEntry } from "../../db/wordOperations";
 
+const TABLE_NAME = "word-of-the-day";
+
 export const prerender = false;
 
 export const GET: APIRoute = async ({ params, request }) => {
@@ -75,32 +77,28 @@ export const POST: APIRoute = async ({ request }) => {
 
 export const PUT: APIRoute = async ({ request }) => {
   try {
-    if (request.headers.get("Content-Type") !== "application/json") {
-      return new Response(null, {
+    const { dt, wd, photoUrl } = await request.json();
+    console.log("Received PUT request with:", { dt, wd, photoUrl });
+
+    if (!dt || !wd || !photoUrl) {
+      return new Response(JSON.stringify({ error: "Missing required fields" }), {
         status: 400,
-        statusText: "Content-Type must be application/json",
       });
     }
 
-    const { dt, ...updates } = (await request.json()) as WordEntry;
-
-    if (!dt) {
-      return new Response(null, {
-        status: 400,
-        statusText: "Date is required",
-      });
-    }
-
-    const updatedWord = await wordOperations.updateWord(dt, updates);
+    // Update the word with the new photo URL
+    const updatedWord = await wordOperations.updateWord(wd, { photoUrl });
+    
     return new Response(JSON.stringify(updatedWord), {
       status: 200,
-      headers: { "Content-Type": "application/json" },
+      headers: {
+        "Content-Type": "application/json"
+      }
     });
   } catch (error) {
-    console.error('Error in PUT /api/word:', error);
-    return new Response(null, {
+    console.error("Error in PUT /api/word:", error);
+    return new Response(JSON.stringify({ error: String(error) }), {
       status: 500,
-      statusText: "Internal server error",
     });
   }
 };

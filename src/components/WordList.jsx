@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import "../styles/global.css";
 import SkeletonLoader from "./SkeletonLoader";
+import { useUploadThing } from "../utils/uploadthing-config";
 
 function WordList({ wordData }) {
   const [savedWords, setSavedWords] = useState([]);
@@ -9,6 +10,9 @@ function WordList({ wordData }) {
   const [deletingWords, setDeletingWords] = useState(new Set());
   const [uploadingPhoto, setUploadingPhoto] = useState(new Set());
   const [highlightedWord, setHighlightedWord] = useState(null);
+  const [wordImages, setWordImages] = useState({});
+
+  const { startUpload } = useUploadThing("imageUploader");
 
   // Fetch saved words when component mounts
   useEffect(() => {
@@ -100,9 +104,14 @@ function WordList({ wordData }) {
       // Log the deletion attempt
       console.log("Attempting to delete word:", wordToDelete);
 
-      const response = await fetch(`/api/word?dt=${encodeURIComponent(wordToDelete.dt)}&wd=${encodeURIComponent(wordToDelete.wd)}`, {
-        method: "DELETE",
-      });
+      const response = await fetch(
+        `/api/word?dt=${encodeURIComponent(
+          wordToDelete.dt
+        )}&wd=${encodeURIComponent(wordToDelete.wd)}`,
+        {
+          method: "DELETE",
+        }
+      );
 
       if (!response.ok) {
         const errorMessage = await response.text();
@@ -111,7 +120,9 @@ function WordList({ wordData }) {
 
       // Only remove the specific word that was deleted
       setSavedWords((prevWords) =>
-        prevWords.filter((word) => word.dt !== wordToDelete.dt || word.wd !== wordToDelete.wd)
+        prevWords.filter(
+          (word) => word.dt !== wordToDelete.dt || word.wd !== wordToDelete.wd
+        )
       );
     } catch (err) {
       setError(`Failed to delete word: ${err.message}`);
@@ -125,49 +136,122 @@ function WordList({ wordData }) {
     }
   };
 
-  const handlePhotoUpload = async (dt, file, e) => {
-    e.stopPropagation(); // Stop event propagation
-    if (!file) return;
+  const handleUploadComplete = async (word, res) => {
+    if (!Array.isArray(res) || res.length === 0) {
+      console.error("Invalid upload response");
+      return;
+    }
 
-    setUploadingPhoto((prev) => new Set([...prev, dt]));
+    const uploadedFile = res[0];
+    const photoUrl =
+      uploadedFile.url || uploadedFile.fileUrl || uploadedFile.data?.url;
+
+    if (!photoUrl) {
+      console.error("No URL found in response");
+      return;
+    }
+
     try {
-      // Create a FormData object to send the file
-      const formData = new FormData();
-      formData.append("file", file);
-      formData.append("dt", dt);
+      // Update local state immediately for better UX
+      setSavedWords((prevWords) =>
+        prevWords.map((w) =>
+          w.dt === word.dt && w.wd === word.wd ? { ...w, photoUrl } : w
+        )
+      );
 
-      const response = await fetch("/api/upload-photo", {
-        method: "POST",
-        body: formData,
-      });
-
-      if (!response.ok) throw new Error("Failed to upload photo");
-
-      const { photoUrl } = await response.json();
-
-      // Update the word entry with the photo URL
+      // Then update the backend
       const updateResponse = await fetch(`/api/word`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ dt, photoUrl }),
+        body: JSON.stringify({
+          dt: word.dt,
+          wd: word.wd,
+          photoUrl,
+        }),
       });
 
-      if (!updateResponse.ok)
+      if (!updateResponse.ok) {
         throw new Error("Failed to update word with photo");
-
-      // Update the word in the current list instead of fetching all words
-      setSavedWords((prevWords) =>
-        prevWords.map((word) => (word.dt === dt ? { ...word, photoUrl } : word))
-      );
+      }
     } catch (err) {
+      console.error("Failed to update word with photo:", err);
+      setError("Failed to save photo URL");
+
+      // Revert the state change on error
+      setSavedWords((prevWords) =>
+        prevWords.map((w) =>
+          w.dt === word.dt && w.wd === word.wd
+            ? { ...w, photoUrl: word.photoUrl }
+            : w
+        )
+      );
+    }
+  };
+
+  const handleUploadError = (error) => {
+    console.error("Upload error:", error);
+    setError(`Upload failed: ${error.message}`);
+  };
+
+  const handleFileUpload = async (e, word) => {
+    e.preventDefault();
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setUploadingPhoto((prev) => new Set([...prev, word.dt]));
+
+    try {
+      const uploadResponse = await startUpload([file]);
+      if (!uploadResponse) {
+        throw new Error("Upload failed");
+      }
+
+      const uploadedFile = uploadResponse[0];
+      const photoUrl = uploadedFile.url;
+
+      if (!photoUrl) {
+        throw new Error("No URL in response");
+      }
+
+      // Update local state first
+      setSavedWords((prevWords) =>
+        prevWords.map((w) =>
+          w.dt === word.dt && w.wd === word.wd ? { ...w, photoUrl } : w
+        )
+      );
+
+      // Then update the server
+      const response = await fetch("/api/word", {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          dt: word.dt,
+          wd: word.wd,
+          photoUrl,
+        }),
+      });
+
+      if (!response.ok) throw new Error("Failed to update word with photo");
+    } catch (err) {
+      console.error("Failed to upload photo:", err);
       setError("Failed to upload photo");
-      console.error(err);
+
+      // Revert the state change on error
+      setSavedWords((prevWords) =>
+        prevWords.map((w) =>
+          w.dt === word.dt && w.wd === word.wd
+            ? { ...w, photoUrl: word.photoUrl }
+            : w
+        )
+      );
     } finally {
       setUploadingPhoto((prev) => {
         const newSet = new Set(prev);
-        newSet.delete(dt);
+        newSet.delete(word.dt);
         return newSet;
       });
     }
@@ -211,7 +295,7 @@ function WordList({ wordData }) {
             key={`${word.wd}-${word.dt}`}
             className={`flex flex-col bg-gray-100 p-4 rounded shadow-md hover:shadow-lg transition-shadow ${
               word.wd === highlightedWord ? "bg-yellow-200" : ""
-            } ${highlightedWord === word.wd ? "fade-out" : ""}`} // Apply fade-out class
+            } ${highlightedWord === word.wd ? "fade-out" : ""}`}
           >
             <div className="flex w-full">
               <div className="w-full">
@@ -225,45 +309,78 @@ function WordList({ wordData }) {
                 </div>
                 <div className="flex gap-2 text-gray-600 mb-4 pt-4 flex mt-2 border-t border-gray-300 w-full">
                   <strong>Part of Speech: </strong> {word.partOfSpeech}
-                  {/* The space after the label is now included */}
                 </div>
               </div>
             </div>
 
-            <div class="flex items-center justify-center w-full">
-              <label
-                for="dropzone-file"
-                class="flex flex-col items-center justify-center w-full h-64 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer hover:bg-gray-50"
-              >
-                <div class="flex flex-col items-center justify-center pt-5 pb-6">
-                  <svg
-                    class="w-8 h-8 mb-4 text-gray-500 dark:text-gray-400"
-                    aria-hidden="true"
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill="none"
-                    viewBox="0 0 20 16"
-                  >
-                    <path
-                      stroke="currentColor"
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      stroke-width="2"
-                      d="M13 13h3a3 3 0 0 0 0-6h-.025A5.56 5.56 0 0 0 16 6.5 5.5 5.5 0 0 0 5.207 5.021C5.137 5.017 5.071 5 5 5a4 4 0 0 0 0 8h2.167M10 15V6m0 0L8 8m2-2 2 2"
-                    />
-                  </svg>
-                  <p class="mb-2 text-sm p-4 text-center text-balance text-gray-500">
-                    <span class="font-semibold">
-                      Click to upload image of the whiteboard
-                    </span>{" "}
-                    or drag and drop
-                  </p>
-                  <p class="text-xs text-gray-500">
-                    SVG, PNG, JPG or GIF (MAX. 800x400px)
-                  </p>
+            <div className="flex items-center justify-center w-full">
+              {word.photoUrl ? (
+                <div className="w-full h-64 sm:h-[350px] relative">
+                  <img
+                    key={word.photoUrl}
+                    src={word.photoUrl}
+                    alt={`Image for ${word.wd}`}
+                    className="w-full h-64 sm:h-[350px] object-cover rounded-lg"
+                    onError={(e) => {
+                      console.error("Image failed to load:", word.photoUrl);
+                      e.target.style.display = "none";
+                    }}
+                  />
                 </div>
-                <input id="dropzone-file" type="file" class="hidden" />
-              </label>
+              ) : (
+                <div className="flex items-center justify-center w-full">
+                  <label
+                    htmlFor={`dropzone-file-${word.dt}`}
+                    className="flex flex-col items-center justify-center w-full h-64 sm:h-[350px] border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 hover:bg-gray-100"
+                  >
+                    <div className="flex flex-col items-center justify-center pt-5 pb-6">
+                      {uploadingPhoto.has(word.dt) ? (
+                        <div className="flex flex-col items-center">
+                          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-500 mb-4"></div>
+                          <p className="text-sm text-gray-500 dark:text-gray-400">
+                            Uploading...
+                          </p>
+                        </div>
+                      ) : (
+                        <>
+                          <svg
+                            className="w-8 h-8 mb-4 text-gray-500 dark:text-gray-400"
+                            aria-hidden="true"
+                            xmlns="http://www.w3.org/2000/svg"
+                            fill="none"
+                            viewBox="0 0 20 16"
+                          >
+                            <path
+                              stroke="currentColor"
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth="2"
+                              d="M13 13h3a3 3 0 0 0 0-6h-.025A5.56 5.56 0 0 0 16 6.5 5.5 5.5 0 0 0 5.207 5.021C5.137 5.017 5.071 5 5 5a4 4 0 0 0 0 8h2.167M10 15V6m0 0L8 8m2-2 2 2"
+                            />
+                          </svg>
+                          <p className="mb-2 text-sm text-gray-500 dark:text-gray-400">
+                            <span className="font-semibold">
+                              Click to upload
+                            </span>{" "}
+                          </p>
+                          <p className="text-xs text-gray-500 dark:text-gray-400">
+                            SVG, PNG, JPG or GIF (MAX 2mb)
+                          </p>
+                        </>
+                      )}
+                    </div>
+                    <input
+                      id={`dropzone-file-${word.dt}`}
+                      type="file"
+                      className="hidden"
+                      onChange={(e) => handleFileUpload(e, word)}
+                      accept="image/*"
+                    />
+                  </label>
+                </div>
+              )}
             </div>
+
             <div className="flex justify-between mt-4 gap-2">
               <span className="bg-blue-100 text-blue-700 px-3 py-1 rounded-full font-medium">
                 {formatDate(word.dt)}
@@ -313,13 +430,9 @@ function WordList({ wordData }) {
                 )}
               </button>
             </div>
-            <div className="flex flex-col gap-4"></div>
           </div>
         ))}
-        {savedWords.length === 0 && !loading && (
-          // <p className="text-gray-500 text-center py-4">No words saved yet</p>
-          <SkeletonLoader client:load />
-        )}
+        {savedWords.length === 0 && !loading && <SkeletonLoader client:load />}
       </div>
     </div>
   );

@@ -2,10 +2,10 @@ import { createUploadthing, type FileRouter } from "uploadthing/server";
 
 const f = createUploadthing();
 
-const auth = (req: Request) => ({ id: "user" }); // Simple auth for now
+const auth = (req: Request) => ({ id: "fakeId" }); // Fake auth function
 
 export const ourFileRouter = {
-  wordImage: f({
+  imageUploader: f({
     image: {
       maxFileSize: "4MB",
       maxFileCount: 1,
