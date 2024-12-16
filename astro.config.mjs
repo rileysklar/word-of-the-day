@@ -12,11 +12,12 @@ export default defineConfig({
     edgeMiddleware: true
   }),
   vite: {
-    define: {
-      'process.env.UPLOADTHING_TOKEN': JSON.stringify(process.env.UPLOADTHING_TOKEN)
-    },
     optimizeDeps: {
       exclude: ["@uploadthing/react"]
     },
+  },
+  // Make environment variables available to client
+  publicEnv: {
+    UPLOADTHING_TOKEN: process.env.UPLOADTHING_TOKEN
   }
 });
