@@ -89,25 +89,37 @@ function WordList({ wordData }) {
     }
   };
 
-  const deleteWord = async (dt) => {
-    setDeletingWords((prev) => new Set([...prev, dt])); // Add the current word to the deleting set
+  const deleteWord = async (wordToDelete) => {
+    // Create a unique identifier for the word using both dt and wd
+    const wordId = `${wordToDelete.dt}-${wordToDelete.wd}`;
+
+    // Update loading state for this specific word only
+    setDeletingWords((prev) => new Set([...prev, wordId]));
+
     try {
-      const response = await fetch(`/api/word?dt=${dt}`, {
+      // Log the deletion attempt
+      console.log("Attempting to delete word:", wordToDelete);
+
+      const response = await fetch(`/api/word?dt=${encodeURIComponent(wordToDelete.dt)}&wd=${encodeURIComponent(wordToDelete.wd)}`, {
         method: "DELETE",
       });
 
-      if (!response.ok) throw new Error("Failed to delete word");
+      if (!response.ok) {
+        const errorMessage = await response.text();
+        throw new Error(`Failed to delete word: ${errorMessage}`);
+      }
 
-      // Refresh the word list
-      await fetchSavedWords();
+      // Only remove the specific word that was deleted
+      setSavedWords((prevWords) =>
+        prevWords.filter((word) => word.dt !== wordToDelete.dt || word.wd !== wordToDelete.wd)
+      );
     } catch (err) {
-      setError("Failed to delete word");
-      console.error(err);
+      setError(`Failed to delete word: ${err.message}`);
+      console.error("Delete error:", err);
     } finally {
-      // Remove the word from the deleting state
       setDeletingWords((prev) => {
         const newSet = new Set(prev);
-        newSet.delete(dt);
+        newSet.delete(wordId);
         return newSet;
       });
     }
@@ -257,12 +269,12 @@ function WordList({ wordData }) {
                 {formatDate(word.dt)}
               </span>
               <button
-                onClick={() => deleteWord(word.dt)}
-                disabled={deletingWords.has(word.dt)} // This should only disable the button for the specific word being deleted
+                onClick={() => deleteWord(word)}
+                disabled={deletingWords.has(`${word.dt}-${word.wd}`)}
                 className="text-red-500 hover:text-red-700 p-1 rounded-full hover:bg-red-50 transition-colors"
                 title="Delete word"
               >
-                {deletingWords.has(word.dt) ? (
+                {deletingWords.has(`${word.dt}-${word.wd}`) ? (
                   <svg
                     className="animate-spin h-5 w-5"
                     xmlns="http://www.w3.org/2000/svg"
