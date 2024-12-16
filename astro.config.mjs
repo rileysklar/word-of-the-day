@@ -2,26 +2,18 @@
 import { defineConfig } from "astro/config";
 import tailwind from "@astrojs/tailwind";
 import react from "@astrojs/react";
-import node from "@astrojs/node";
+import netlify from "@astrojs/netlify";
 
 // https://astro.build/config
 export default defineConfig({
   integrations: [tailwind(), react()],
   output: "server",
-  adapter: node({
-    mode: "standalone"
+  adapter: netlify({
+    edgeMiddleware: true
   }),
-  server: {
-    port: 4321,
-    host: true
-  },
   vite: {
     optimizeDeps: {
       exclude: ["@uploadthing/react"]
     },
-    server: {
-      port: 4321,
-      strictPort: true
-    }
   }
 });
