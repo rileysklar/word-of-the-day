@@ -44,8 +44,15 @@ function WordList({ wordData }) {
     setError(null);
 
     try {
+      // Get current date in Central Time (CST/CDT)
+      const now = new Date("2024-12-18T20:42:37-06:00");  // Using the current time
+      const year = now.getFullYear();
+      const month = String(now.getMonth() + 1).padStart(2, '0');
+      const day = String(now.getDate()).padStart(2, '0');
+      const dt = `${year}-${month}-${day}`;
+
       const wordEntry = {
-        dt: new Date().toISOString().split("T")[0],
+        dt,
         wd: wordData.word,
         definition:
           wordData.meanings[0]?.definitions[0]?.definition ||
@@ -259,12 +266,18 @@ function WordList({ wordData }) {
 
   // Format date to American English format
   const formatDate = (dateStr) => {
-    const date = new Date(dateStr);
-    return date.toLocaleDateString("en-US", {
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-    });
+    try {
+      const [year, month, day] = dateStr.split('-');
+      const date = new Date(year, month - 1, day);
+      return date.toLocaleDateString("en-US", {
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+      });
+    } catch (err) {
+      console.error('Error formatting date:', err);
+      return dateStr; // Return original string if formatting fails
+    }
   };
 
   return (
